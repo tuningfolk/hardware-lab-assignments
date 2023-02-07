@@ -1,0 +1,739 @@
+1. --------------------------------------------------------------------------------------------------------
+
+section .bss
+    num resb 2
+    num1 resb 2
+    num2 resb 2
+    num3 resb 2
+    temp resb 2
+    count resb 1
+
+section .data
+    newline db 10
+    string db "The largest number is "
+    len equ $-string
+    inp db "Enter number: "
+    inplen equ $-inp
+
+section .text
+global _start
+_start:
+    mov word[num1], 0
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, inp
+    mov edx, inplen
+    int 80h
+
+    read_num1:
+        mov eax, 3
+        mov ebx, 0
+        mov ecx, temp
+        mov edx, 1
+        int 80h
+
+        cmp byte[temp], 10
+        je exit_loop1
+
+        sub byte[temp], 30h
+
+        mov ax, word[num1]
+        mov bx, 10
+        mul bx ;since bx is 2 bytes, it is multiplied with ax and stored in dx:ax
+        mov bh, 0
+        mov bl, byte[temp]
+        add ax, bx
+
+        mov word[num1], ax
+        jmp read_num1
+
+    exit_loop1:
+        ; mov eax, 4
+        ; mov ebx, 1
+        ; mov ecx, num1
+        ; mov edx, 3
+        ; int 80h
+
+        ; mov eax, 4
+        ; mov ebx, 1
+        ; mov ecx, newline
+        ; mov edx, 1
+        ; int 80h
+
+
+    mov word[num2], 0
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, inp
+    mov edx, inplen
+    int 80h
+
+    read_num2:
+        mov eax, 3
+        mov ebx, 0
+        mov ecx, temp
+        mov edx, 1
+        int 80h
+
+        cmp byte[temp], 10
+        je exit_loop2
+
+        sub byte[temp], 30h
+
+        mov ax, word[num2]
+        mov bx, 10
+        mul bx ;since bx is 2 bytes, it is multiplied with ax and stored in dx:ax
+        mov bh, 0
+        mov bl, byte[temp]
+        add ax, bx
+
+        mov word[num2], ax
+        jmp read_num2
+
+    exit_loop2:
+        ; mov eax, 4
+        ; mov ebx, 1
+        ; mov ecx, num2
+        ; mov edx, 3
+        ; int 80h
+
+        ; mov eax, 4
+        ; mov ebx, 1
+        ; mov ecx, newline
+        ; mov edx, 1
+        ; int 80h
+
+
+    mov word[num3], 0
+    
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, inp
+    mov edx, inplen
+    int 80h
+
+    read_num3:
+        mov eax, 3
+        mov ebx, 0
+        mov ecx, temp
+        mov edx, 1
+        int 80h
+
+        cmp byte[temp], 10
+        je exit_loop3
+
+        sub byte[temp], 30h
+
+        mov ax, word[num3]
+        mov bx, 10
+        mul bx ;since bx is 2 bytes, it is multiplied with ax and stored in dx:ax
+        mov bh, 0
+        mov bl, byte[temp]
+        add ax, bx
+
+        mov word[num3], ax
+        jmp read_num3
+
+    exit_loop3:
+        ; mov eax, 4
+        ; mov ebx, 1
+        ; mov ecx, num3
+        ; mov edx, 3
+        ; int 80h
+
+        ; mov eax, 4
+        ; mov ebx, 1
+        ; mov ecx, newline
+        ; mov edx, 1
+        ; int 80h
+
+    compare:
+        mov ax, word[num1]
+        mov bx, word[num2]
+        mov cx, word[num3]
+
+        cmp ax, bx
+        jnb if
+        else:
+            mov word[temp], bx
+            jmp print
+        if:
+            mov word[temp], ax
+        print:
+            mov ax, word[temp]
+            cmp ax, cx
+            jnb if1
+
+            else1:
+                mov word[num],cx
+                jmp exit
+            if1:
+                mov word[num], ax
+            
+            exit:
+                mov eax, 4
+                mov ebx, 1
+                mov ecx, string
+                mov edx, len
+                int 80h
+
+    print_num:
+
+        mov byte[count], 0
+        pusha
+
+        extract_num:
+
+            cmp word[num], 0
+            je print_no
+
+            inc byte[count]
+
+            mov bx, 10
+            
+            mov dx, 0 ;to set the higher 8 bits to 0; DX:AX divides
+            mov ax, word[num]
+            
+            div bx ;0:AX divided by bx
+
+            ;remainder at DX, quotient at AX
+
+            push dx
+            mov word[num], ax
+
+        jmp extract_num
+
+        print_no:
+            cmp byte[count], 0
+            je exit_print_no
+
+            dec byte[count]
+
+            pop dx
+            mov byte[temp], dl
+            add byte[temp], 30h
+
+            mov eax, 4
+            mov ebx, 1
+            mov ecx, temp
+            mov edx, 1
+            int 80h
+
+        jmp print_no
+    exit_print_no:
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, newline
+    mov edx, 1
+    int 80h
+
+    mov eax, 1
+    mov ebx, 0
+    int 80h
+
+2. --------------------------------------------------------------------------------------------------------
+
+section .bss
+    num resb 2  ;input number
+    square resb 2 ;result
+    temp resb 2  ;used while inputting the number
+    count resb 2  ;used as the loop iterative to calculate the square
+    count2 resb 1
+
+section .data
+    newline db 10
+    inp db "Enter a number: "
+    len equ $-inp
+    outp db "The square of the number is "
+    len2 equ $-outp 
+
+section .text
+global _start:
+_start:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, inp
+    mov edx, len
+    int 80h
+
+    mov word[num], 0
+    read_num:
+        mov eax, 3
+        mov ebx, 0
+        mov ecx, temp
+        mov edx, 1
+        int 80h
+
+        cmp word[temp], 10
+        je exit_read_num
+
+        mov ax, word[num]
+        mov bx, 10
+
+        mul bx
+
+        sub word[temp], 30h
+
+        add ax, word[temp]
+        mov word[num], ax
+
+        jmp read_num
+
+    exit_read_num:
+
+    mov ax, word[num]
+    mov word[count], ax
+
+    mov word[square], ax
+
+    square_loop:
+        cmp word[count], 1
+        je exit_square_loop
+
+        dec word[count]
+
+        mov ax, word[num]
+        add word[square], ax
+
+        jmp square_loop
+
+    exit_square_loop:
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, outp
+    mov edx, len2
+    int 80h
+
+    print_num:
+
+            mov byte[count2], 0
+            pusha
+
+            extract_num:
+
+                cmp word[square], 0
+                je print_no
+
+                inc byte[count2]
+
+                mov bx, 10
+                
+                mov dx, 0 ;to set the higher 8 bits to 0; DX:AX divides
+                mov ax, word[square]
+                
+                div bx ;0:AX divided by bx
+
+                ;remainder at DX, quotient at AX
+
+                push dx
+                mov word[square], ax
+
+            jmp extract_num
+
+            print_no:
+                cmp byte[count2], 0
+                je exit_print_no
+
+                dec byte[count2]
+
+                pop dx
+                mov byte[temp], dl
+                add byte[temp], 30h
+
+                mov eax, 4
+                mov ebx, 1
+                mov ecx, temp
+                mov edx, 1
+                int 80h
+
+                jmp print_no
+            exit_print_no:
+        mov eax, 4
+        mov ebx, 1
+        mov ecx, newline
+        mov edx, 1
+        int 80h
+
+
+    mov eax, 1
+    mov ebx, 0
+    int 80h
+
+3. ----------------------------------------------------------------------------------------------
+
+section .bss
+    num1 resb 4
+    num2 resb 4
+    sum resb 4
+    temp resb 4
+    count resb 1
+
+section .data
+    newline db 10
+    inp db "Enter a number: "
+    len equ $-inp
+    outp db "The sum is "
+    len2 equ $-outp
+
+section .text
+global _start:
+_start:
+
+    mov dword[num1], 0
+    
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, inp
+    mov edx, len
+    int 80h 
+
+    read_num1:
+        mov eax, 3
+        mov ebx, 0
+        mov ecx, temp
+        mov edx, 1
+        int 80h
+
+        cmp byte[temp], 10
+        je exit_read_num1
+
+        sub byte[temp], 30h
+
+        mov ebx, 10
+        mov eax, dword[num1]
+
+        mul ebx
+
+        add eax, dword[temp]
+        mov dword[num1], eax
+
+        jmp read_num1
+        
+    exit_read_num1:
+
+    mov dword[num2], 0
+    
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, inp
+    mov edx, len
+    int 80h 
+
+    read_num2:
+        mov eax, 3
+        mov ebx, 0
+        mov ecx, temp
+        mov edx, 1
+        int 80h
+
+        cmp byte[temp], 10
+        je exit_read_num2
+
+        sub byte[temp], 30h
+
+        mov ebx, 10
+        mov eax, dword[num2]
+
+        mul ebx
+
+        add eax, dword[temp]
+        mov dword[num2], eax
+
+        jmp read_num2
+        
+    exit_read_num2:
+
+    mov eax, dword[num1]
+    add eax, dword[num2]
+    mov dword[sum], eax
+
+    ;print a number
+    ;while(num!=0)
+    ;   temp = num%10
+    ;   push(temp)
+    ;   count++
+    ;   num = num/10
+    ;
+    ;while(count!=0)
+    ;   pop temp
+    ;   print(temp)
+    ;   count--
+
+    ;Now, let's print sum
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, outp
+    mov edx, len2
+    int 80h
+
+    print_num:
+        mov byte[count], 0
+        pusha
+
+        extract_num:
+            cmp dword[sum], 0
+            je print_no
+
+            mov edx, 0
+            mov eax, dword[sum]
+            
+            mov ebx, 10
+            div ebx
+
+            push edx
+
+            inc byte[count]
+
+            mov dword[sum], eax
+
+            jmp extract_num
+
+        print_no:
+
+            cmp byte[count], 0
+            je exit_print_no
+
+            pop edx
+            mov dword[temp], edx
+            add dword[temp], 30h
+
+            mov eax, 4
+            mov ebx, 1
+            mov ecx, temp
+            mov edx, 1
+            int 80h
+
+            dec byte[count]
+            jmp print_no
+        exit_print_no:
+
+    popa
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, newline
+    mov edx, 1
+    int 80h
+
+    mov eax, 1
+    mov ebx, 0
+    int 80h
+
+4. -------------------------------------------------------------------------------------------------
+
+section .data
+    string1 db "Little-endian", 0Ah
+    len1 equ $-string1
+    string2 db "Big-endian", 0Ah
+    len2 equ $-string2
+
+section .text
+global _start:
+_start:
+    mov ax, 10
+    cmp al,10
+    je if
+    else:
+        mov eax, 4
+        mov ebx, 1
+        mov ecx, string1
+        mov edx, len1
+        int 80h
+        jmp exit
+    if:
+        mov eax, 4
+        mov ebx, 1
+        mov ecx, string2
+        mov edx, len2
+        int 80h
+        
+    exit:
+
+        mov eax, 1
+        mov ebx, 0
+        int 80h
+
+5. ---------------------------------------------------------------------------------------------------------
+
+section .data
+    newline db 10
+    inp1 db "Enter n: "
+    len1 equ $-inp1
+    inp2 db "Enter number: "
+    len2 equ $-inp2
+    outp db "The mean is "
+    len3 equ $-outp
+
+section .bss
+    n resb 2
+    ntemp resb 2
+    num resb 2
+    sum resb 2
+    mean resb 2
+    temp resb 2
+    count resb 1
+
+section .text
+global _start:
+_start:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, inp1
+    mov edx, len1
+    int 80h
+
+    mov word[n], 0
+    read_n:
+        mov eax, 3
+        mov ebx, 0
+        mov ecx, temp
+        mov edx, 1
+        int 80h
+
+        cmp word[temp], 10
+        je exit_read_n
+
+        sub word[temp], 30h
+
+        mov ax, word[n]
+        mov bx, 10
+
+        mul bx
+
+        add ax, word[temp]
+        mov word[n], ax
+        jmp read_n
+
+    exit_read_n:
+
+    mov ax, word[n]
+    mov word[ntemp], ax
+
+    mov word[sum], 0
+    loop: ; one iteration accepts one number
+        cmp word[n], 0
+        je exit_loop
+
+        mov eax, 4
+        mov ebx, 1
+        mov ecx, inp2
+        mov edx, len2
+        int 80h
+
+        mov word[num], 0
+        read_num: ;one iteration accepts a digit of the 'i'th number
+            mov eax, 3
+            mov ebx, 0
+            mov ecx, temp
+            mov edx, 1
+            int 80h
+
+            cmp word[temp], 10
+            je exit_read_num
+
+            sub word[temp], 30h
+
+            mov ax, word[num]
+            mov bx, 10
+
+            mul bx
+
+            add ax, word[temp]
+            mov word[num], ax
+            jmp read_num
+
+        exit_read_num:
+
+        mov ax, word[num]
+        add word[sum], ax
+
+
+        dec word[n]
+        jmp loop
+    exit_loop:
+    
+
+
+    calculate_mean:
+        mov dx, 0
+        mov ax, word[sum]
+        mov bx, word[ntemp]
+        div bx
+
+        mov word[mean], ax
+
+
+    ;while(num!=0)
+    ;   temp = num%10
+    ;   push(temp)
+    ;   num=num/10
+    ;   count++
+    ;
+    ;while(count!=0)
+    ;   pop temp
+    ;   print(temp)
+    ;   count--
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, outp
+    mov edx, len3
+    int 80h
+
+    print_num:
+        mov byte[count], 0
+        pusha
+
+        extract_num:
+            cmp word[mean], 0
+            je print_no
+            
+            mov dx, 0
+            mov ax, word[mean]
+            mov bx, 10
+
+            div bx
+
+            push dx ; remainder at dx, quotient at ax
+
+            mov word[mean], ax
+            inc byte[count]
+            jmp extract_num
+
+        print_no:
+            cmp word[count], 0
+            je exit_print_no
+
+            pop dx
+            mov word[temp], dx
+
+            add word[temp], 30h
+
+            mov eax, 4
+            mov ebx, 1
+            mov ecx, temp
+            mov edx, 1
+            int 80h
+
+            dec word[count]
+            jmp print_no
+        exit_print_no:
+    popa
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, newline
+    mov edx, 1
+    int 80h
+
+    mov eax, 1
+    mov ebx, 0
+    int 80h
+
+
+
