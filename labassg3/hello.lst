@@ -1,0 +1,18 @@
+     1                                  section .text
+     2                                  global _start
+     3                                  _start:
+     4 00000000 B804000000                  mov eax, 4
+     5 00000005 BB01000000                  mov ebx, 1
+     6 0000000A B932000000                  mov ecx, 50
+     7 0000000F BA01000000                  mov edx, 1
+     8 00000014 CD80                        int 80h
+     9                                  
+    10 00000016 B804000000                  mov eax, 4
+    11 0000001B BB01000000                  mov ebx, 1
+    12 00000020 B90A000000                  mov ecx, 10
+    13 00000025 BA01000000                  mov edx, 1
+    14 0000002A CD80                        int 80h
+    15                                  
+    16 0000002C B801000000                  mov eax, 1
+    17 00000031 BB00000000                  mov ebx, 0
+    18 00000036 CD80                        int 80h
