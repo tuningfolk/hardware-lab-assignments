@@ -3,6 +3,8 @@ section .data
     space db 32
     msg1 db "Enter n: "
     len1 equ $-msg1
+    msg2 db "Enter m: "
+    len2 db $-msg2
 
 section .bss
     n resb 2
@@ -22,10 +24,21 @@ section .bss
 section .text
 global _start
 _start:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg1
+    mov edx, len1
+    int 80h
 
     call read_num
     mov ax, word[num]
     mov word[n], ax
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg2
+    mov edx, len2
+    int 80h
 
     call read_num
     mov ax, word[num]
@@ -75,7 +88,7 @@ merge:
     ;pusha
     ;i = 0, j = 0, k = 0
     ;while i<(n+m):
-    ;   if j>n:
+    ;   if j>=n:
     ;       arr[i] = b[k]
     ;       i++
     ;       k++
@@ -100,23 +113,25 @@ merge:
     mov word[arrcount], 0
     mov word[j], 0
     mov word[k], 0
+    mov eax, 0
     merge_loop:
         mov ax, word[n]
         add ax, word[m]
         cmp word[arrcount], ax
-        je exit_merge_loop
+        jae exit_merge_loop
 
-        
+        ;---           ---------------------------------------------------
         mov ax, word[j]
         cmp ax, word[n]
-        ja if1
+        jae if1
             else1:
                 jmp L1
             if1:
-                mov cx, word[k]
-                mov dx, word[arr2 + 2*ecx]
+                mov ax, word[k]
+                mov dx, word[arr2 + 2*eax]
 
                 mov ax, word[arrcount]
+                mov ebx, arr3
                 mov word[ebx + 2*eax], dx
 
                 inc word[arrcount]
@@ -126,14 +141,15 @@ merge:
 
         mov ax, word[k]
         cmp ax, word[m]
-        ja if2
+        jae if2
             else2:
                 jmp L2
             if2:
-                mov cx, word[j]
-                mov dx, word[arr1 + 2*ecx]
+                mov ax, word[j]
+                mov dx, word[arr1 + 2*eax]
 
                 mov ax, word[arrcount]
+                mov ebx, arr3
                 mov word[ebx + 2*eax], dx
 
                 inc word[arrcount]
@@ -141,21 +157,22 @@ merge:
                 jmp merge_loop
             L2:
 
-        mov cx, word[j]
-        mov dx, word[arr1 + 2*ecx]
+        mov ax, word[j]
+        mov dx, word[arr1 + 2*eax]
 
-        mov cx, word[k]
-        mov ax, word[arr2 + 2*ecx]
+        mov ax, word[k]
+        mov ax, word[arr2 + 2*eax]
         mov cx, ax
 
         cmp dx, cx
         jnb if3
             else3:
                 ;cx is bigger ==>arr2 is bigger
-                mov cx, word[k]
-                mov dx, word[arr2 + 2*ecx]
+                mov ax, word[k]
+                mov dx, word[arr2 + 2*eax]
 
                 mov ax, word[arrcount]
+                mov ebx, arr3
                 mov word[ebx + 2*eax], dx
 
                 inc word[arrcount]
@@ -164,10 +181,11 @@ merge:
                 jmp L3
             if3:
                 ;dx is bigger ==> arr1 is bigger
-                mov cx, word[j]
-                mov dx, word[arr1 + 2*ecx]
+                mov ax, word[j]
+                mov dx, word[arr1 + 2*eax]
 
                 mov ax, word[arrcount]
+                mov ebx, arr3
                 mov word[ebx + 2*eax], dx
 
                 inc word[arrcount]
@@ -176,12 +194,7 @@ merge:
             L3:
                 jmp merge_loop
                 
-            
-
-            
-
-        
-
+            ;---------- -----------------------
 
         jmp merge_loop
     exit_merge_loop:
@@ -189,6 +202,7 @@ merge:
     ret
 
 read_array:
+    pusha
     mov ax, word[arrsize]
     mov word[arrcount], ax
 
@@ -204,10 +218,11 @@ read_array:
         dec word[arrcount]
         jmp read_array_loop
     exit_read_array_loop:
-
+    popa
     ret
 
 print_array:
+    pusha
     mov ax, word[arrsize]
     mov word[arrcount], ax
 
@@ -231,6 +246,8 @@ print_array:
     mov ecx, newline
     mov edx, 1
     int 80h
+
+    popa
 
     ret
 
