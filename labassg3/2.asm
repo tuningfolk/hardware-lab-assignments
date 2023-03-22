@@ -241,20 +241,29 @@ _start:
 
         print_array_loop:
             mov ax, word[arrcount]
-            cmp ax, word[arrsize]
+            cmp ax, word[n]
             je exit_print_array_loop
             mov word[j], 0
             print_array_loop2:
-            
-                mov ax, word[k]    
-                mov cx, word[arr + 2*eax]
-                mov word[num], cx
+                mov ax, word[j]
+                cmp ax, word[m]
+                je exit_print_array_loop2
+                mov ax, word[k]
+                mov word[num], ax
+
                 call print_num
+
+                
+                ; mov eax, 0
+                ; mov ax, word[arrcount]    
+                ; mov cx, word[arr + 2*eax]
+                ; mov word[num], cx
+                ; call print_num
 
                 inc word[k]
                 inc word[j]
                 jmp print_array_loop2
-            exit_print_array2:
+            exit_print_array_loop2:
 
             mov eax, 4
             mov ebx, 1
@@ -263,9 +272,7 @@ _start:
             int 80h
 
 
-
-            
-
+        
             inc word[arrcount]
             jmp print_array_loop
         exit_print_array_loop:

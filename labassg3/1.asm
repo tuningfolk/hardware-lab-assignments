@@ -203,11 +203,11 @@ merge:
 
 read_array:
     pusha
-    mov ax, word[arrsize]
-    mov word[arrcount], ax
+    mov word[arrcount], 0
 
     read_array_loop:
-        cmp word[arrcount], 0
+        mov ax, word[arrsize]
+        cmp word[arrcount], ax
         je exit_read_array_loop
 
         call read_num
@@ -215,7 +215,7 @@ read_array:
         mov ax, word[arrcount]
         mov word[ebx+2*eax], cx
 
-        dec word[arrcount]
+        inc word[arrcount]
         jmp read_array_loop
     exit_read_array_loop:
     popa
