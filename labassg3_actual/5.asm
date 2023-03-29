@@ -1,13 +1,12 @@
 section .data
     newline db 10
-    msg1 db "Enter the number of elements: "
+    space db 32
+    msg1 db "Enter array: "
     len1 equ $-msg1
-    msg2 db "Enter the elements of the array: ", 0Ah
+    msg2 db "Enter second array: "
     len2 equ $-msg2
-    msg3 db "No. of even numbers: "
+    msg3 db "After sorting: "
     len3 equ $-msg3
-    msg4 db "No. of odd numbers: "
-    len4 equ $-msg4
 
 section .bss
     count resb 2
@@ -15,9 +14,9 @@ section .bss
     num resb 2
     temp resb 2
     arrsize resb 4
-    arr resw 5
-    even resb 2
-    odd resb 2
+    arr resw 20
+    i resw 1
+    j resw 2
     
 
 
@@ -25,9 +24,42 @@ section .text
 global _start
 _start:
 
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg1
+    mov edx, len1
+    int 80h
+
+    mov word[arrcount], 0
+
+    call read_inp
+    mov bx, word[num]
+    mov word[arrsize], bx
 
     call read_array
-    call count_array
+    ; call print_array
+
+    ; mov eax, 4
+    ; mov ebx, 1
+    ; mov ecx, msg2
+    ; mov edx, len2
+    ; int 80h
+
+    ; call read_inp
+    ; mov bx, word[num]
+    ; add word[arrsize], bx
+
+    ; call read_array
+
+    call sort
+
+    mov eax, 4
+    mov ebx ,1
+    mov ecx, msg3
+    mov edx, len3
+    int 80h
+
+    call print_array
 
     exit:
         mov eax, 1
@@ -36,7 +68,70 @@ _start:
 
     ;------------------FUNCtIONS-----------------;
 
+    sort:
+    ;i = 0
+    ;j = 0
+    ;while i<n-1:
+    ;   j = 0
+    ;   while j<n-1:
+    ;       if *(arr+i)> *(arr + i + 1):
+    ;           swap
+    ;       j++
+    ;   i++
+
+    pusha
+
+        mov word[i], 0
+        mov dword[j], 0
+
+        mov ax, word[arrsize]
+        mov word[arrcount], ax
+        dec word[arrcount]
+
+        sortloop1:
+            mov ax, word[i]
+            cmp ax, word[arrcount]
+            je exit_sortloop1
+
+            mov dword[j], 0
+            sortloop2:
+                mov ax, word[j]
+                cmp ax, word[arrcount]
+                je exit_sortloop2
+
+
+                mov eax, 0
+                mov eax, dword[j]
+                mov bx, word[arr + 2*eax]
+                mov cx, word[arr + 2*eax+2]
+                cmp bx, cx
+                ja if1
+                    else1:
+                        jmp L1
+                    if1:
+                        ; mov bx, word[arr + 2*eax]
+                        ; mov cx, word[arr + 4*eax]
+                        mov word[arr + 2*eax+2], bx
+                        mov word[arr + 2*eax], cx
+                    L1:
+
+
+
+
+                inc dword[j]
+                jmp sortloop2
+            exit_sortloop2:
+
+
+            inc word[i]
+            jmp sortloop1
+        exit_sortloop1:
+
+    popa
+    ret
+
     read_inp:
+        pusha
         mov word[num], 0
         read_num:
 
@@ -47,6 +142,9 @@ _start:
             int 80h
 
             cmp byte[temp], 10
+            je exit_read_num
+
+            cmp byte[temp], 32
             je exit_read_num
 
             sub byte[temp], 30h
@@ -63,6 +161,7 @@ _start:
             jmp read_num
             
         exit_read_num:
+    popa
     ret
 
     print_num:
@@ -115,10 +214,25 @@ _start:
 
     mov eax, 4
     mov ebx, 1
-    mov ecx, newline
+    mov ecx, space
     mov edx, 1
     int 80h
+    
+
     popa
+    ret
+
+    print:
+        pusha
+        call print_num
+        
+        mov eax, 4
+        mov ebx, 1
+        mov ecx, 10
+        mov edx, 1
+        int 80h
+
+        popa
     ret
 
     
@@ -130,26 +244,7 @@ _start:
         ;   i++
         ; endwhile
 
-        mov word[arrcount], 0 ;counter
-
-        ;read size
-        mov eax, 4
-        mov ebx, 1
-        mov ecx, msg1
-        mov edx, len1
-        int 80h
-
-        call read_inp
-
-        mov bx, word[num]
-        mov word[arrsize], bx
-
-        ;read elements
-        mov eax, 4
-        mov ebx, 1
-        mov ecx, msg2
-        mov edx, len2
-        int 80h
+        ; mov word[arrcount], 0 ;counter
 
 
         array_loop:
@@ -164,6 +259,7 @@ _start:
 
             mov word[arr + 2*eax], cx
 
+            
 
             inc word[arrcount]
             jmp array_loop
@@ -195,69 +291,18 @@ _start:
 
             call print_num
 
+            
+
             inc word[arrcount]
             jmp print_array_loop
         exit_print_array_loop:
     exit_print_array:
+
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, newline
+    mov edx, 1
+    int 80h
+
     popa
-    ret
-
-    count_array:
-        ;while i<n:
-        ;   if *(arr+i)%2 == 0:
-        ;       even++
-        ;   i++
-        
-        mov word[arrcount], 0
-        mov word[even], 0
-        count_loop:
-            mov ax, word[arrcount]
-            cmp ax, word[arrsize]
-            je exit_count_loop
-
-            mov ax, word[arrcount]
-            mov dx, 0
-            mov ax, word[arr+2*eax]
-            mov bx, 2
-            div bx
-
-            cmp dx, 0
-            je if1
-            else1:
-                jmp L1
-            if1:
-                inc word[even]
-            L1:
-
-            inc word[arrcount]
-            jmp count_loop
-        exit_count_loop:
-
-        mov eax, 4
-        mov ebx, 1
-        mov ecx, msg3
-        mov edx, len3
-        int 80h
-
-        mov ax, word[even]
-        mov word[num], ax
-
-        call print_num
-
-        mov bx, word[arrsize]
-        mov word[odd], bx
-        sub word[odd], ax
-
-        mov eax, 4
-        mov ebx, 1
-        mov ecx, msg4
-        mov edx, len4
-        int 80h
-
-        mov ax, word[odd]
-        mov word[num], ax
-
-        call print_num
-
-    exit_count_array:
     ret
